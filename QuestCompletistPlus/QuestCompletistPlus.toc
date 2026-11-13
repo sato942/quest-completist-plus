@@ -1,0 +1,9 @@
+## Interface: 16001
+## Title: Quest Completist+
+## Notes: Shows quest levels as [XX] Name on Quest Completist's map icons, in NPC quest lists, and in the quest window.
+## Author: Zephras
+## Version: 1.1.0
+## OptionalDeps: QuestCompletist, DialogKey_Numy
+## SavedVariables: QuestCompletistPlusDB
+
+QuestCompletistPlus.lua
