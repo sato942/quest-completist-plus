@@ -49,7 +49,7 @@ The addon keeps a small saved file (`QuestCompletistPlusDB`) with counts of what
     luac -p QuestCompletistPlus/QuestCompletistPlus.lua
     lua tests/test.lua QuestCompletistPlus/QuestCompletistPlus.lua
     python package.py
-    python release.py --project <CurseForge project number>    # dry run; add --upload to upload
+    python release.py --project 1803362    # dry run; add --upload to upload
 
 The test runs the addon outside the game against stand-ins shaped like the code it hooks. `package.py` writes `dist/QuestCompletistPlus-<version>.zip`. `release.py` uploads that zip to the CurseForge project, where the addon is named "Quest Completist Plus" because CurseForge does not allow "+" in a name.
 
