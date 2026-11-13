@@ -2,14 +2,15 @@
 
 Entered once when the project is created. Release notes go in each file's changelog, not here.
 
-- **Name:** Quest Completist+
+- **Name:** Quest Completist Plus (CurseForge does not allow "+" in a project name; in game the addon is still listed as Quest Completist+)
+- **Address:** https://www.curseforge.com/wow/addons/quest-completist-plus (created 2026-11-14)
 - **Game:** World of Warcraft
-- **Summary (one line):** Shows quest levels as [12] Quest Name on Quest Completist's map icons, in NPC quest lists, and in the quest window. For WoW Forever.
+- **Summary (one line):** Shows quest levels as [12] Quest Name on Quest Completist's map icons, in NPC quest lists, and in the quest window. For WoW Foreve1
 - **Category:** Quests & Leveling
 - **License:** MIT License
 - **Source:** https://github.com/sato942/quest-completist-plus
 - **Issues:** https://github.com/sato942/quest-completist-plus/issues
-- **File to upload:** `dist/QuestCompletistPlus-1.2.0.zip` (made by `python package.py`), game version WoW Forever 1.60.1, release type Release, changelog: the 1.2.0 and 1.1.0 sections of `CHANGELOG.md`.
+- **File to upload:** `dist/QuestCompletistPlus-1.2.0.zip` (made by `python package.py`; uploaded with `python release.py --project <number> --upload`), game version WoW Forever 1.60.1, release type Release, changelog: the 1.2.0 and 1.1.0 sections of `CHANGELOG.md`.
 
 ## Description (paste as is)
 
