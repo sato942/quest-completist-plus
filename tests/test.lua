@@ -32,6 +32,9 @@ local function FontString(text)
 	function fs:SetText(t) self.text = t end
 	function fs:IsShown() return self.shown end
 	function fs:GetHeight() return 12 end
+	function fs:GetFont() return self.font[1], self.font[2], self.font[3] end
+	function fs:SetFont(file, size, flags) self.font = {file, size, flags}; self.fontSets = (self.fontSets or 0) + 1 end
+	fs.font = {"Fonts\\FRIZQT__.TTF", 13, ""}
 	return fs
 end
 local function Button(text)
@@ -121,6 +124,10 @@ function GetTitleText() return currentTitle end
 QuestInfoFrame = {}
 QuestInfoTitleHeader = FontString()
 QuestProgressTitleText = FontString()
+QuestInfoTitleHeader.font = {"Fonts\\MORPHEUS.TTF", 18, ""}
+QuestProgressTitleText.font = {"Fonts\\MORPHEUS.TTF", 18, ""}
+QuestInfoDescriptionText = FontString()
+QuestProgressText = FontString()
 QuestFrameProgressPanel = Button()
 function QuestInfo_Display() QuestInfoTitleHeader:SetText("|A:icon:16:16|a " .. currentTitle) end
 
@@ -141,7 +148,11 @@ Settings = {
 		registered.setting = {variable = variable, key = key, tbl = tbl, name = name}
 		return registered.setting
 	end,
-	CreateCheckbox = function(_, setting) registered.checkbox = setting end,
+	CreateCheckbox = function(_, setting)
+		registered.checkbox = registered.checkbox or setting
+		registered.boxes = (registered.boxes or 0) + 1
+		registered[setting.key] = setting
+	end,
 	RegisterAddOnCategory = function(category) registered.added = category.name end,
 }
 
@@ -313,6 +324,28 @@ check("progress page", QuestProgressTitleText.text, "[7] Vanquish the Betrayers"
 currentQuest, currentTitle = 999, "Unknown To The Addon"
 QuestInfo_Display()
 check("game's level fallback", QuestInfoTitleHeader.text, "|A:icon:16:16|a [33] Unknown To The Addon")
+
+print("-- 3b. quest title font")
+local function font(fs) return fs.font[1] .. " " .. fs.font[2] end
+check("two options", registered.boxes >= 2 and registered.standardTitleFont.name, "Quest title in the standard font")
+check("on by default", QuestCompletistPlusDB.standardTitleFont, true)
+check("accept page: the body text's font, two points smaller", font(QuestInfoTitleHeader), "Fonts\\FRIZQT__.TTF 16")
+check("progress page", font(QuestProgressTitleText), "Fonts\\FRIZQT__.TTF 16")
+local sets = QuestInfoTitleHeader.fontSets
+QuestInfo_Display()
+check("set once, not on every open", QuestInfoTitleHeader.fontSets, sets)
+QuestInfoFrame.questLog = true
+QuestInfo_Display()
+check("quest log view: the game's font back", font(QuestInfoTitleHeader), "Fonts\\MORPHEUS.TTF 18")
+QuestInfoFrame.questLog = nil
+QuestInfo_Display()
+check("NPC window again", font(QuestInfoTitleHeader), "Fonts\\FRIZQT__.TTF 16")
+QuestCompletistPlusDB.standardTitleFont = false
+QuestInfo_Display()
+QuestFrameProgressPanel.scripts.OnShow()
+check("option off: the game's font back", font(QuestInfoTitleHeader) .. " | " .. font(QuestProgressTitleText), "Fonts\\MORPHEUS.TTF 18 | Fonts\\MORPHEUS.TTF 18")
+check("option off: level still written", QuestInfoTitleHeader.text, "|A:icon:16:16|a [33] Unknown To The Addon")
+QuestCompletistPlusDB.standardTitleFont = true
 
 print("-- saved file")
 for name, place in pairs(QuestCompletistPlusDB.places) do

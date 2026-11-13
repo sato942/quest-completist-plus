@@ -9,7 +9,7 @@ Entered once when the project is created. Release notes go in each file's change
 - **License:** MIT License
 - **Source:** https://github.com/sato942/quest-completist-plus
 - **Issues:** https://github.com/sato942/quest-completist-plus/issues
-- **File to upload:** `dist/QuestCompletistPlus-1.1.0.zip` (made by `python package.py`), game version WoW Forever 1.60.1, release type Release, changelog: the 1.1.0 section of `CHANGELOG.md`.
+- **File to upload:** `dist/QuestCompletistPlus-1.2.0.zip` (made by `python package.py`), game version WoW Forever 1.60.1, release type Release, changelog: the 1.2.0 and 1.1.0 sections of `CHANGELOG.md`.
 
 ## Description (paste as is)
 
@@ -32,6 +32,10 @@ Without Quest Completist, the NPC quest list and the quest window still work; th
 **DialogKey**
 
 DialogKey numbers the lines of an NPC's quest list, so a line reads `1. [12] Quest Name`. If you prefer `[12] Quest Name`, tick **Hide DialogKey's numbers** in Options, AddOns, Quest Completist+. DialogKey's number keys keep working.
+
+**Quest title font**
+
+The game's ornate quest title font draws numbers plain, so the title of an NPC's quest window is drawn in the standard font, where the level and the name match. Untick **Quest title in the standard font** in the same options to keep the ornate font.
 
 **Good to know**
 

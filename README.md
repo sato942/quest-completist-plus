@@ -34,7 +34,7 @@ The addon only runs after the game's and the other addons' own code (`hooksecure
 
 - The map list is found by the shape of Quest Completist's tooltip text. If a Quest Completist update changes that shape, the list goes back to plain names until this addon is updated. Nothing breaks.
 - Hiding DialogKey's numbers relies on two of DialogKey's internal names. If a DialogKey update changes them, its numbers come back. Nothing breaks.
-- The quest title's ornate font draws its own numbers and brackets plain. That is the game's font, not a second one.
+- The game's ornate quest title font draws numbers and brackets plain, so `[12]` beside an ornate name looks like two fonts. By default the addon therefore draws the whole title of an NPC's quest window in the standard font, the one the quest's text uses. Untick **Quest title in the standard font** in Options, AddOns, Quest Completist+ to keep the ornate font. The quest log's own view is not changed.
 
 The addon keeps a small saved file (`QuestCompletistPlusDB`) with counts of what it wrote and skipped in each place, a few recent examples, and quests where Quest Completist's level and the game's level differ. It is there for troubleshooting and is never sent anywhere.
 

@@ -1,4 +1,4 @@
--- Quest Completist+ 1.1.0.
+-- Quest Completist+ 1.2.0.
 -- Writes a quest's level before its name, "[12] Name", in three places:
 --   1. the list Quest Completist shows when its map icon is hovered,
 --   2. an NPC's quest selection (the gossip window, and the quest greeting window),
@@ -6,7 +6,9 @@
 -- The level is Quest Completist's own (qcQuestDatabase), the game's only for a quest it does not know.
 -- With DialogKey the lines read "1. [12] Name"; the option "Hide DialogKey's numbers" (off by default) takes its
 -- "1. " off the selection windows' lines, and its keys still work: they pick by position, not text.
--- The option is one checkbox in the game's AddOns settings (Blizzard_Settings_Shared/Blizzard_Settings.lua
+-- The quest window's title is drawn in the standard font, the quest text's own, unless the option "Quest title
+-- in the standard font" is unticked.
+-- Each option is one checkbox in the game's AddOns settings (Blizzard_Settings_Shared/Blizzard_Settings.lua
 -- 134, 154, 174, 388, as its Blizzard_ImplementationReadme.lua 86-96 shows).
 --
 -- Written against WoW Forever 1.60.1.70938 (Interface 16001). Every game function, event, and widget method
@@ -20,7 +22,7 @@
 --     hooksecurefunc, CreateFrame, GetQuestID, GetTitleText, GetActiveTitle, GetAvailableTitle,
 --     GetActiveQuestID, GetAvailableQuestInfo.
 --   events/PLAYER_LOGIN.md, events/ADDON_ACTION_BLOCKED.md, events/ADDON_ACTION_FORBIDDEN.md.
---   widgets/GameTooltip.md (NumLines, Show, GetOwner), widgets/FontString.md (GetText, SetText, IsShown),
+--   widgets/GameTooltip.md (NumLines, Show, GetOwner), widgets/FontString.md (GetText, SetText, IsShown, GetFont, SetFont),
 --     widgets/Button.md (GetText, SetText, GetTextHeight), widgets/Frame.md (HookScript, SetHeight, GetID),
 --     widgets/Texture.md (GetHeight).
 -- The game's own Lua, hooked after it runs and never replaced (Interface/AddOns/ of that build):
@@ -32,8 +34,9 @@
 --   qcTooltips.lua 150-250, Forever/qcQuestData.lua), DialogKey_Numy v1.2.62 (main.lua 225-314, 775-793).
 
 local ADDON = ...
-local VERSION = "1.1.0"
+local VERSION = "1.2.0"
 local SAMPLES, MISMATCHES = 20, 500
+local TITLE_SMALLER = 2
 
 local DB
 
@@ -359,6 +362,37 @@ local function QuestTitleWritten(fontString)
 	Wrote("quest", questId, level, new)
 end
 
+--[[ The quest title's font ]]--
+
+-- The title's own font (QuestTitleFont, FontStyles.xml 42) is ornate for letters and plain for digits and
+-- brackets. With the option on, the whole title takes the font of the quest's body text beside it (QuestFont,
+-- FontStyles.xml 46), two points under the title's size; colour and shadow stay the game's. Off, or in the
+-- quest log's view, the title gets back the font the game gave it.
+local titleFonts = {}
+
+local function TitleFont(title, body, standard)
+	if not title or type(title.GetFont) ~= "function" or type(title.SetFont) ~= "function" then return end
+	local own = titleFonts[title]
+	if not own then
+		local file, size, flags = title:GetFont()
+		if Secret(file) or Secret(size) or Secret(flags) or type(file) ~= "string" or type(size) ~= "number" then return end
+		own = {file = file, size = size, flags = flags, now = file}
+		titleFonts[title] = own
+	end
+	local file, size = own.file, own.size
+	if standard and body and type(body.GetFont) == "function" then
+		local bodyFile = body:GetFont()
+		if not Secret(bodyFile) and type(bodyFile) == "string" and size > TITLE_SMALLER then
+			file, size = bodyFile, size - TITLE_SMALLER
+		end
+	end
+	if own.now ~= file then
+		title:SetFont(file, size, own.flags)
+		own.now = file
+		DB.titleFont = file
+	end
+end
+
 --[[ Start ]]--
 
 -- Each hook is made only when what it hooks is there; the saved file says which were made.
@@ -382,6 +416,7 @@ local function Start()
 	if type(DB.hideDialogKeyNumbers) ~= "boolean" then
 		DB.hideDialogKeyNumbers = type(DB.load) == "table" and DB.load.version == "1.0.0"
 	end
+	if type(DB.standardTitleFont) ~= "boolean" then DB.standardTitleFont = true end
 	DB.load = {version = VERSION, game = version, build = build, time = GetServerTime(), hooks = {}}
 	QuestRows()
 
@@ -393,6 +428,10 @@ local function Start()
 			"hideDialogKeyNumbers", DB, Settings.VarType.Boolean, "Hide DialogKey's numbers", false)
 		Settings.CreateCheckbox(category, setting,
 			"Takes DialogKey's 1. 2. 3. off the lines of an NPC's quest list. Its number keys still work. Shows the next time the list opens.")
+		local font = Settings.RegisterAddOnSetting(category, "QUESTCOMPLETISTPLUS_STANDARD_TITLE_FONT",
+			"standardTitleFont", DB, Settings.VarType.Boolean, "Quest title in the standard font", true)
+		Settings.CreateCheckbox(category, font,
+			"Draws a quest's title in the same font as the quest's text, so the level and the name match. Unticked, the title keeps the game's ornate font. Shows the next time a quest opens.")
 		Settings.RegisterAddOnCategory(category)
 	end)
 
@@ -423,11 +462,16 @@ local function Start()
 	Hook("questTitle", type(QuestInfo_Display) == "function" and QuestInfoFrame ~= nil, function()
 		hooksecurefunc("QuestInfo_Display", function()
 			-- The NPC's window only; the quest log's own view of a quest is left as it is.
-			if not QuestInfoFrame.questLog then QuestTitleWritten(QuestInfoTitleHeader) end
+			local npc = not QuestInfoFrame.questLog
+			TitleFont(QuestInfoTitleHeader, QuestInfoDescriptionText, npc and DB.standardTitleFont)
+			if npc then QuestTitleWritten(QuestInfoTitleHeader) end
 		end)
 	end)
 	Hook("questProgress", QuestFrameProgressPanel ~= nil, function()
-		QuestFrameProgressPanel:HookScript("OnShow", function() QuestTitleWritten(QuestProgressTitleText) end)
+		QuestFrameProgressPanel:HookScript("OnShow", function()
+			TitleFont(QuestProgressTitleText, QuestProgressText, DB.standardTitleFont)
+			QuestTitleWritten(QuestProgressTitleText)
+		end)
 	end)
 end
 

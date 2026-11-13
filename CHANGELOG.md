@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.2.0 (2026-11-13)
+
+- The quest window's title (accept, not-finished-yet, and hand-in pages) is drawn in the standard font, the same as the quest's text, so the level and the name match. New option "Quest title in the standard font", on by default; untick it to keep the game's ornate title font. The quest log is not changed.
+
 ## 1.1.0 (2026-11-13)
 
 - First public version.
